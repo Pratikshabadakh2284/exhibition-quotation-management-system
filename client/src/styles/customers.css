@@ -141,3 +141,27 @@
     padding: 16px;
   }
 }
+
+.field-error {
+  color: #dc2626;
+  font-size: 13px;
+  margin-top: -5px;
+  margin-bottom: 5px;
+}
+
+.customer-card input[aria-invalid="true"],
+.customer-card textarea[aria-invalid="true"] {
+  border: 1px solid #dc2626;
+  background-color: #fffafa;
+}
+
+.customer-card input:focus,
+.customer-card textarea:focus {
+  outline: 2px solid #93c5fd;
+}
+
+.customer-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

@@ -1,36 +1,21 @@
 
-.app-container {
-  max-width: 900px;
-  margin: 80px auto;
-  padding: 30px;
-  font-family: Arial, sans-serif;
-  text-align: center;
+.app {
+  min-height: 100vh;
+  background: #f5f7fa;
 }
 
-.app-container h1 {
-  font-size: 42px;
-  color: #243b53;
+.app-header {
+  background: #243b53;
+  color: white;
+  padding: 20px 6%;
 }
 
-.app-container h2 {
-  color: #526579;
-  font-weight: 400;
+.app-header h1 {
+  margin: 0;
+  font-size: 28px;
 }
 
-.status-card {
-  margin-top: 40px;
-  padding: 25px;
-  border: 1px solid #dce3e9;
-  border-radius: 12px;
-  background: #f8fafc;
-}
-
-.success {
-  color: #16803c;
-  font-weight: 600;
-}
-
-.error {
-  color: #c62828;
-  font-weight: 600;
+.app-header p {
+  margin: 5px 0 0;
+  color: #dce5ef;
 }

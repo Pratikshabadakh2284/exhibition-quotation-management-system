@@ -19,3 +19,25 @@
   margin: 5px 0 0;
   color: #dce5ef;
 }
+
+.app-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.app-nav button {
+  background: transparent;
+  border: 1px solid #8fa4b8;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.app-nav button:hover,
+.app-nav button.active {
+  background: white;
+  color: #243b53;
+}

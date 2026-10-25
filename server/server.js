@@ -12,11 +12,12 @@ const cors = require("cors");
 
 const app = express();
 const customerRoutes = require("./routes/customerRoutes");
+const productServiceRoutes = require("./routes/productServiceRoutes");
 
 app.use(cors());
 app.use(express.json());
 app.use("/api/customers", customerRoutes);
-
+app.use("/api/products-services", productServiceRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({

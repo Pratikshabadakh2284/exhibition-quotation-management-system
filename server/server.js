@@ -13,11 +13,13 @@ const cors = require("cors");
 const app = express();
 const customerRoutes = require("./routes/customerRoutes");
 const productServiceRoutes = require("./routes/productServiceRoutes");
+const projectRoutes = require("./routes/projectRoutes");
 
 app.use(cors());
 app.use(express.json());
 app.use("/api/customers", customerRoutes);
 app.use("/api/products-services", productServiceRoutes);
+app.use("/api/projects", projectRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({

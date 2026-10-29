@@ -1,0 +1,242 @@
+
+.quotations-page {
+  max-width: 1200px;
+  margin: 35px auto;
+  padding: 0 24px 50px;
+  font-family: Arial, sans-serif;
+  color: #243b53;
+}
+
+.quotations-page * {
+  box-sizing: border-box;
+}
+
+.quotations-page h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.quotations-page > p {
+  color: #64748b;
+  margin-bottom: 25px;
+}
+
+.quotation-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 28px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.quotation-card h2 {
+  font-size: 20px;
+  margin: 0 0 20px;
+}
+
+.quotation-card h3 {
+  font-size: 17px;
+  margin: 25px 0 12px;
+}
+
+.quotation-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quotation-card label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  margin-top: 10px;
+}
+
+.quotation-card input,
+.quotation-card select,
+.quotation-card textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  color: #1e293b;
+  font-family: Arial, sans-serif;
+}
+
+.quotation-card textarea {
+  resize: vertical;
+}
+
+.quotation-card input:focus,
+.quotation-card select:focus,
+.quotation-card textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.quotation-item-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 15px;
+  align-items: end;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  margin-bottom: 12px;
+}
+
+.quotation-line-total {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quotation-line-total strong {
+  font-size: 16px;
+}
+
+.quotation-line-total small {
+  color: #64748b;
+}
+
+.quotation-remove-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 11px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.quotation-add-item-btn {
+  align-self: flex-start;
+  background: #e2e8f0;
+  color: #243b53;
+  border: none;
+  padding: 11px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.quotation-subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #eff6ff;
+  padding: 18px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.quotation-subtotal strong {
+  font-size: 24px;
+  color: #243b53;
+}
+
+.quotation-form-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.quotation-form-buttons button {
+  background: #243b53;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 22px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.quotation-form-buttons .quotation-cancel-btn {
+  background: #64748b;
+}
+
+.quotation-form-buttons button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.quotation-error {
+  color: #dc2626;
+  font-size: 12px;
+}
+
+.quotation-message {
+  padding: 12px 15px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.quotation-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.quotation-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.quotation-table-container th {
+  background: #f1f5f9;
+  padding: 14px 12px;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.quotation-table-container td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.quotation-table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.quotation-table-actions button {
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.quotation-edit-btn {
+  background: #2563eb;
+}
+
+.quotation-delete-btn {
+  background: #dc2626;
+}
+
+@media (max-width: 768px) {
+  .quotations-page {
+    padding: 0 15px 35px;
+  }
+
+  .quotation-card {
+    padding: 18px;
+  }
+
+  .quotation-item-row {
+    grid-template-columns: 1fr;
+  }
+
+  .quotation-form-buttons {
+    flex-wrap: wrap;
+  }
+}

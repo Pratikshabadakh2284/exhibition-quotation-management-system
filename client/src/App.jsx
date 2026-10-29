@@ -4,6 +4,7 @@ import { useState } from "react";
 import Customers from "./pages/Customers";
 import ProductsServices from "./pages/ProductsServices";
 import Projects from "./pages/Projects";
+import Quotations from "./pages/Quotations";
 
 import "./App.css";
 
@@ -44,6 +45,13 @@ function App() {
           >
             Exhibition Projects
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActivePage("quotations")}
+          >
+            Quotations
+          </button>
         </nav>
       </header>
 
@@ -52,6 +60,8 @@ function App() {
       {activePage === "products" && <ProductsServices />}
 
       {activePage === "projects" && <Projects />}
+
+      {activePage === "quotations" && <Quotations />}
     </div>
   );
 }

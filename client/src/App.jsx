@@ -1,12 +1,14 @@
 
 import { useState } from "react";
+
 import Customers from "./pages/Customers";
+import ProductsServices from "./pages/ProductsServices";
+import Projects from "./pages/Projects";
+
 import "./App.css";
-import ProductsServices from "./pages/ProductsServices";  
 
 function App() {
   const [activePage, setActivePage] = useState("customers");
-  
 
   return (
     <div className="app">
@@ -14,7 +16,14 @@ function App() {
         <h1>ExpoCraft</h1>
         <p>Exhibition Quotation Management System</p>
 
-        <nav style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
+        <nav
+          style={{
+            marginTop: "20px",
+            display: "flex",
+            gap: "10px",
+            flexWrap: "wrap"
+          }}
+        >
           <button
             type="button"
             onClick={() => setActivePage("customers")}
@@ -28,12 +37,21 @@ function App() {
           >
             Products &amp; Services
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActivePage("projects")}
+          >
+            Exhibition Projects
+          </button>
         </nav>
       </header>
 
       {activePage === "customers" && <Customers />}
 
       {activePage === "products" && <ProductsServices />}
+
+      {activePage === "projects" && <Projects />}
     </div>
   );
 }

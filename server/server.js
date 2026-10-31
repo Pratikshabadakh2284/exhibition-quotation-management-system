@@ -16,7 +16,7 @@ const productServiceRoutes = require("./routes/productServiceRoutes");
 const projectRoutes = require("./routes/projectRoutes");
 const quotationRoutes = require("./routes/quotationRoutes");
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use("/api/customers", customerRoutes);
 app.use("/api/products-services", productServiceRoutes);

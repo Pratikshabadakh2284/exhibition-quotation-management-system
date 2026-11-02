@@ -1,7 +1,7 @@
 
 const dns = require("node:dns");
 
-// Use Google's public DNS resolver for MongoDB SRV lookups
+// DNS configuration for MongoDB Atlas
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 require("dotenv").config();
@@ -9,36 +9,95 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
-const app = express();
+// Existing routes
 const customerRoutes = require("./routes/customerRoutes");
 const productServiceRoutes = require("./routes/productServiceRoutes");
 const projectRoutes = require("./routes/projectRoutes");
 const quotationRoutes = require("./routes/quotationRoutes");
 
-app.use(cors({ origin: "*" }));
-app.use(express.json());
-app.use("/api/customers", customerRoutes);
-app.use("/api/products-services", productServiceRoutes);
-app.use("/api/projects", projectRoutes);
-app.use("/api/quotations", quotationRoutes);
+// Authentication routes
+const authRoutes = require("./routes/authRoutes");
 
+// Authentication and authorization middleware
+const {
+  requireAuth,
+  requireAdmin
+} = require("./middleware/authMiddleware");
+
+const app = express();
+
+// CORS configuration for React frontend
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true
+  })
+);
+
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+
+// Public authentication routes
+app.use("/api/auth", authRoutes);
+
+// Protected application routes
+app.use(
+  "/api/customers",
+  requireAuth,
+  requireAdmin,
+  customerRoutes
+);
+
+app.use(
+  "/api/products-services",
+  requireAuth,
+  requireAdmin,
+  productServiceRoutes
+);
+
+app.use(
+  "/api/projects",
+  requireAuth,
+  requireAdmin,
+  projectRoutes
+);
+
+app.use(
+  "/api/quotations",
+  requireAuth,
+  requireAdmin,
+  quotationRoutes
+);
+
+// Health check
 app.get("/api/health", (req, res) => {
   res.json({
-    message: "Exhibition_Quotation_Management_System API is running successfully!"
+    message:
+      "Exhibition_Quotation_Management_System API is running successfully!"
   });
 });
 
+// Start backend
 async function startServer() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
+
     console.log("MongoDB connected successfully!");
 
-    app.listen(process.env.PORT || 5000, () => {
-      console.log("Server running on port 5000");
+    const PORT = process.env.PORT || 5000;
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("MongoDB connection failed:", error.message);
+    console.error(
+      "MongoDB connection failed:",
+      error.message
+    );
+
     process.exit(1);
   }
 }

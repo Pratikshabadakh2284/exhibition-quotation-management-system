@@ -5,7 +5,10 @@ const router = express.Router();
 const {
   login,
   logout,
-  getCurrentUser
+  getCurrentUser,
+  createStaff,
+  getStaff,
+  changePassword
 } = require("../controllers/authController");
 
 const {
@@ -13,13 +16,29 @@ const {
   requireAdmin
 } = require("../middleware/authMiddleware");
 
-// Administrator login
 router.post("/login", login);
-
-// Administrator logout
 router.post("/logout", logout);
 
-// Check logged-in administrator
-router.get("/me", requireAuth, requireAdmin, getCurrentUser);
+router.get("/me", requireAuth, getCurrentUser);
+
+router.get(
+  "/users",
+  requireAuth,
+  requireAdmin,
+  getStaff
+);
+
+router.post(
+  "/users",
+  requireAuth,
+  requireAdmin,
+  createStaff
+);
+
+router.put(
+  "/change-password",
+  requireAuth,
+  changePassword
+);
 
 module.exports = router;

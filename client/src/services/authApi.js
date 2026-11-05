@@ -1,42 +1,56 @@
 
-const BASE_URL = "http://localhost:5000/api/auth";
+const API_URL = "http://localhost:5000/api/auth";
 
-async function handleResponse(response) {
+async function request(path, options = {}) {
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers
+    }
+  });
+
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Authentication failed");
+    throw new Error(data.message || "Request failed");
   }
 
   return data;
 }
 
-export async function login(email, password) {
-  const response = await fetch(`${BASE_URL}/login`, {
+export const login = (email, password) => {
+  return request("/login", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    credentials: "include",
     body: JSON.stringify({ email, password })
   });
+};
 
-  return handleResponse(response);
-}
-
-export async function getCurrentUser() {
-  const response = await fetch(`${BASE_URL}/me`, {
-    credentials: "include"
+export const logout = () => {
+  return request("/logout", {
+    method: "POST"
   });
+};
 
-  return handleResponse(response);
-}
+export const getCurrentUser = () => {
+  return request("/me");
+};
 
-export async function logout() {
-  const response = await fetch(`${BASE_URL}/logout`, {
+export const createStaff = (staff) => {
+  return request("/users", {
     method: "POST",
-    credentials: "include"
+    body: JSON.stringify(staff)
   });
+};
 
-  return handleResponse(response);
-}
+export const getStaff = () => {
+  return request("/users");
+};
+
+export const changePassword = (passwords) => {
+  return request("/change-password", {
+    method: "PUT",
+    body: JSON.stringify(passwords)
+  });
+};

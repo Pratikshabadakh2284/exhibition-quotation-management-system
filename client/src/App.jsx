@@ -6,6 +6,8 @@ import ProductsServices from "./pages/ProductsServices";
 import Projects from "./pages/Projects";
 import Quotations from "./pages/Quotations";
 import Login from "./pages/Login";
+import ManageUsers from "./pages/ManageUsers";
+import ChangePassword from "./pages/ChangePassword";
 
 import {
   getCurrentUser,
@@ -19,6 +21,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [checkingSession, setCheckingSession] = useState(true);
 
+  // Check whether the user is already logged in
   useEffect(() => {
     async function checkSession() {
       try {
@@ -34,6 +37,7 @@ function App() {
     checkSession();
   }, []);
 
+  // Logout
   async function handleLogout() {
     try {
       await logout();
@@ -44,12 +48,27 @@ function App() {
     }
   }
 
+  // After changing password, return to login
+  function handlePasswordChanged() {
+    setUser(null);
+    setActivePage("customers");
+  }
+
+  // Loading screen
   if (checkingSession) {
     return <p>Checking session...</p>;
   }
 
+  // Show login page when user is not logged in
   if (!user) {
-    return <Login onLogin={setUser} />;
+    return (
+      <Login
+        onLogin={(loggedInUser) => {
+          setUser(loggedInUser);
+          setActivePage("customers");
+        }}
+      />
+    );
   }
 
   return (
@@ -58,7 +77,10 @@ function App() {
         <h1>ExpoCraft</h1>
         <p>Exhibition Quotation Management System</p>
 
-        <p>Welcome, {user.name}</p>
+        <p>
+          Welcome, {user.name} (
+          {user.role === "admin" ? "Admin" : "Staff"})
+        </p>
 
         <nav
           style={{
@@ -96,19 +118,63 @@ function App() {
             Quotations
           </button>
 
-          <button type="button" onClick={handleLogout}>
+          {/* Only admin can see Manage Users */}
+          {user.role === "admin" && (
+            <button
+              type="button"
+              onClick={() => setActivePage("users")}
+            >
+              Manage Users
+            </button>
+          )}
+
+          {/* Both admin and staff can change password */}
+          <button
+            type="button"
+            onClick={() => setActivePage("changePassword")}
+          >
+            Change Password
+          </button>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+          >
             Logout
           </button>
         </nav>
       </header>
 
-      {activePage === "customers" && <Customers />}
+      <main>
+        {activePage === "customers" && (
+          <Customers />
+        )}
 
-      {activePage === "products" && <ProductsServices />}
+        {activePage === "products" && (
+          <ProductsServices />
+        )}
 
-      {activePage === "projects" && <Projects />}
+        {activePage === "projects" && (
+          <Projects />
+        )}
 
-      {activePage === "quotations" && <Quotations />}
+        {activePage === "quotations" && (
+          <Quotations />
+        )}
+
+        {/* Admin-only user management */}
+        {activePage === "users" &&
+          user.role === "admin" && (
+            <ManageUsers />
+          )}
+
+        {/* Password change for all logged-in users */}
+        {activePage === "changePassword" && (
+          <ChangePassword
+            onLogout={handlePasswordChanged}
+          />
+        )}
+      </main>
     </div>
   );
 }

@@ -21,23 +21,21 @@ const requireAuth = async (req, res, next) => {
 
     if (!user) {
       return res.status(401).json({
-        message: "Invalid session"
+        message: "User not found"
       });
     }
 
     req.user = user;
-
     next();
   } catch (error) {
     return res.status(401).json({
-      message: "Session expired or invalid"
+      message: "Invalid or expired session"
     });
   }
 };
 
-// Check whether the user is an administrator
 const requireAdmin = (req, res, next) => {
-  if (!req.user || req.user.role !== "admin") {
+  if (req.user?.role !== "admin") {
     return res.status(403).json({
       message: "Administrator access required"
     });

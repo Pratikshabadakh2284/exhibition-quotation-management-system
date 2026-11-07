@@ -1,0 +1,169 @@
+
+/* ExpoCraft - User Management & Change Password */
+
+.user-management,
+.change-password {
+  max-width: 900px;
+  margin: 35px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  font-family: Arial, sans-serif;
+  color: #243b53;
+}
+
+/* Headings */
+
+.user-management h2,
+.change-password h2 {
+  font-size: 26px;
+  color: #243b53;
+  margin: 0 0 12px;
+}
+
+.user-management h3 {
+  font-size: 21px;
+  color: #243b53;
+  margin-top: 35px;
+  margin-bottom: 18px;
+}
+
+.user-management p,
+.change-password p {
+  font-size: 14px;
+  color: #526477;
+  margin-bottom: 20px;
+}
+
+/* Forms */
+
+.user-management form,
+.change-password form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 500px;
+}
+
+.user-management form div,
+.change-password form div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.user-management label,
+.change-password label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #243b53;
+}
+
+/* Input fields */
+
+.user-management input,
+.change-password input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #243b53;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.user-management input:focus,
+.change-password input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Buttons */
+
+.user-management form button,
+.change-password form button {
+  background-color: #243b53;
+  color: #ffffff;
+  border: none;
+  border-radius: 7px;
+  padding: 13px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background-color 0.2s;
+}
+
+.user-management form button:hover,
+.change-password form button:hover {
+  background-color: #365674;
+}
+
+.user-management form button:disabled,
+.change-password form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Staff table */
+
+.user-management table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.user-management th {
+  background-color: #243b53;
+  color: #ffffff;
+  padding: 14px;
+  text-align: left;
+}
+
+.user-management td {
+  padding: 13px 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.user-management tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.user-management tbody tr:hover {
+  background-color: #eef4fa;
+}
+
+/* Responsive layout */
+
+@media (max-width: 600px) {
+  .user-management,
+  .change-password {
+    margin: 15px;
+    padding: 20px;
+  }
+
+  .user-management h2,
+  .change-password h2 {
+    font-size: 22px;
+  }
+
+  .user-management form,
+  .change-password form {
+    max-width: 100%;
+  }
+
+  .user-management form button,
+  .change-password form button {
+    width: 100%;
+  }
+
+  .user-management table {
+    display: block;
+    overflow-x: auto;
+  }
+}

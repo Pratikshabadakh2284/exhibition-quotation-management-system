@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { createStaff, getStaff } from "../services/authApi";
+import "../styles/userManagement.css";
 
 export default function ManageUsers() {
   const [name, setName] = useState("");

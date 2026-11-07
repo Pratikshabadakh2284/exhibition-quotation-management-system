@@ -4,6 +4,7 @@ import {
   changePassword,
   logout
 } from "../services/authApi";
+import "../styles/userManagement.css";
 
 export default function ChangePassword({ onLogout }) {
   const [currentPassword, setCurrentPassword] = useState("");

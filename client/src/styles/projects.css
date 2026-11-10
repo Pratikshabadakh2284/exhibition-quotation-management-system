@@ -265,3 +265,26 @@
     width: 100%;
   }
 }
+
+.project-extra-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.project-extra-fields label {
+  font-weight: 600;
+  color: #243b53;
+}
+
+.project-extra-fields input,
+.project-extra-fields select,
+.project-extra-fields textarea {
+  width: 100%;
+  box-sizing: border-box;
+}

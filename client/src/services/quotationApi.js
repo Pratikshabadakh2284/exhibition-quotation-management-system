@@ -1,6 +1,7 @@
 
 const BASE_URL = "http://localhost:5000/api";
 
+// Handle API response
 async function handleResponse(response) {
   const data = await response.json();
 
@@ -11,11 +12,16 @@ async function handleResponse(response) {
   return data;
 }
 
+// Get all quotations
 export async function getQuotations() {
-  const response = await fetch(`${BASE_URL}/quotations`);
+  const response = await fetch(`${BASE_URL}/quotations`, {
+    credentials: "include"
+  });
+
   return handleResponse(response);
 }
 
+// Create quotation
 export async function addQuotation(quotation) {
   const response = await fetch(`${BASE_URL}/quotations`, {
     method: "POST",
@@ -29,6 +35,7 @@ export async function addQuotation(quotation) {
   return handleResponse(response);
 }
 
+// Update quotation
 export async function updateQuotation(id, quotation) {
   const response = await fetch(`${BASE_URL}/quotations/${id}`, {
     method: "PUT",
@@ -42,21 +49,33 @@ export async function updateQuotation(id, quotation) {
   return handleResponse(response);
 }
 
+// Delete quotation
 export async function deleteQuotation(id) {
   const response = await fetch(`${BASE_URL}/quotations/${id}`, {
     method: "DELETE",
-    credentials: "include",
+    credentials: "include"
   });
 
   return handleResponse(response);
 }
 
+// Get exhibition projects
 export async function getQuotationProjects() {
-  const response = await fetch(`${BASE_URL}/projects`);
+  const response = await fetch(`${BASE_URL}/projects`, {
+    credentials: "include"
+  });
+
   return handleResponse(response);
 }
 
+// Get products and services
 export async function getQuotationProducts() {
-  const response = await fetch(`${BASE_URL}/products-services`);
+  const response = await fetch(
+    `${BASE_URL}/products-services`,
+    {
+      credentials: "include"
+    }
+  );
+
   return handleResponse(response);
 }

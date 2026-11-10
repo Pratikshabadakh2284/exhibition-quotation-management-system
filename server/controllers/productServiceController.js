@@ -1,94 +1,88 @@
 
+const mongoose = require("mongoose");
 const ProductService = require("../models/ProductService");
 
+// Validate product or service
 function validateItem(data) {
   if (!data || typeof data !== "object" || Array.isArray(data)) {
     return { error: "Invalid form data" };
   }
 
-  const { type, name, category, description, unitPrice, unit } = data;
+  const { name, type, unitPrice } = data;
+
+  if (
+    typeof name !== "string" ||
+    name.trim().length < 2 ||
+    name.trim().length > 100
+  ) {
+    return { error: "Name must contain 2 to 100 characters" };
+  }
 
   if (!["Product", "Service"].includes(type)) {
     return { error: "Please select Product or Service" };
   }
 
-  if (typeof name !== "string" ||
-      name.trim().length < 2 ||
-      name.trim().length > 100) {
-    return { error: "Name must contain 2 to 100 characters" };
-  }
-
-  if (typeof category !== "string" || !category.trim()) {
-    return { error: "Category is required" };
-  }
-
-  if (typeof description !== "string" ||
-      description.trim().length < 5 ||
-      description.trim().length > 300) {
-    return { error: "Description must contain 5 to 300 characters" };
-  }
-
-  if (unitPrice === "" || unitPrice === null ||
-      unitPrice === undefined ||
-      !Number.isFinite(Number(unitPrice)) ||
-      Number(unitPrice) <= 0) {
+  if (
+    unitPrice === "" ||
+    unitPrice === null ||
+    unitPrice === undefined ||
+    !Number.isFinite(Number(unitPrice)) ||
+    Number(unitPrice) < 0.01
+  ) {
     return { error: "Enter a valid price greater than zero" };
-  }
-
-  const allowedUnits = [
-    "Each", "m²", "Metre", "Hour", "Job", "Trip", "Set"
-  ];
-
-  if (!allowedUnits.includes(unit)) {
-    return { error: "Please select a valid unit" };
   }
 
   return {
     item: {
-      type,
       name: name.trim(),
-      category: category.trim(),
-      description: description.trim(),
-      unitPrice: Number(unitPrice),
-      unit
+      type,
+      unitPrice: Number(unitPrice)
     }
   };
 }
 
+// Handle server errors
 function sendError(res, error) {
   if (error.name === "ValidationError") {
-    return res.status(400).json({ message: error.message });
+    return res.status(400).json({
+      message: error.message
+    });
   }
 
   console.error(error);
+
   return res.status(500).json({
     message: "Server error. Please try again."
   });
 }
 
-// GET all products and services
+// Get all products and services
 exports.getItems = async (req, res) => {
   try {
-    const items = await ProductService.find().sort({ createdAt: -1 });
+    const items = await ProductService.find()
+      .sort({ createdAt: -1 });
+
     res.json(items);
   } catch (error) {
     sendError(res, error);
   }
 };
 
-// GET one item
+// Get one item
 exports.getItemById = async (req, res) => {
   try {
-    const id = req.params.id;
-
-    if (!/^[0-9a-fA-F]{24}$/.test(id)) {
-      return res.status(400).json({ message: "Invalid item ID" });
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({
+        message: "Invalid item ID"
+      });
     }
 
-    const item = await ProductService.findById(id);
+    const item = await ProductService.findById(req.params.id);
 
     if (!item) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(404).json({
+        message: "Item not found"
+      });
     }
 
     res.json(item);
@@ -97,45 +91,55 @@ exports.getItemById = async (req, res) => {
   }
 };
 
-// POST new item
+// Create product or service
 exports.createItem = async (req, res) => {
   try {
     const result = validateItem(req.body);
 
     if (result.error) {
-      return res.status(400).json({ message: result.error });
+      return res.status(400).json({
+        message: result.error
+      });
     }
 
     const item = await ProductService.create(result.item);
+
     res.status(201).json(item);
   } catch (error) {
     sendError(res, error);
   }
 };
 
-// PUT update item
+// Update product or service
 exports.updateItem = async (req, res) => {
   try {
-    const id = req.params.id;
-
-    if (!/^[0-9a-fA-F]{24}$/.test(id)) {
-      return res.status(400).json({ message: "Invalid item ID" });
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({
+        message: "Invalid item ID"
+      });
     }
 
     const result = validateItem(req.body);
 
     if (result.error) {
-      return res.status(400).json({ message: result.error });
+      return res.status(400).json({
+        message: result.error
+      });
     }
 
     const item = await ProductService.findByIdAndUpdate(
-      id,
+      req.params.id,
       result.item,
-      { new: true, runValidators: true }
+      {
+        new: true,
+        runValidators: true
+      }
     );
 
     if (!item) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(404).json({
+        message: "Item not found"
+      });
     }
 
     res.json(item);
@@ -144,22 +148,28 @@ exports.updateItem = async (req, res) => {
   }
 };
 
-// DELETE item
+// Delete product or service
 exports.deleteItem = async (req, res) => {
   try {
-    const id = req.params.id;
-
-    if (!/^[0-9a-fA-F]{24}$/.test(id)) {
-      return res.status(400).json({ message: "Invalid item ID" });
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({
+        message: "Invalid item ID"
+      });
     }
 
-    const item = await ProductService.findByIdAndDelete(id);
+    const item = await ProductService.findByIdAndDelete(
+      req.params.id
+    );
 
     if (!item) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(404).json({
+        message: "Item not found"
+      });
     }
 
-    res.json({ message: "Item deleted successfully" });
+    res.json({
+      message: "Item deleted successfully"
+    });
   } catch (error) {
     sendError(res, error);
   }

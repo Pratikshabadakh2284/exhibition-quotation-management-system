@@ -3,63 +3,32 @@ const mongoose = require("mongoose");
 const Project = require("../models/Project");
 const Customer = require("../models/Customer");
 
-const validStatuses = [
-  "Planning",
-  "In Progress",
-  "Completed",
-  "Cancelled"
-];
-
+// Validate project details
 function validateProject(data) {
-  const requiredFields = [
-    "projectName",
-    "customer",
-    "exhibitionName",
-    "location",
-    "startDate",
-    "endDate",
-    "standSize",
-    "status",
-    "description"
-  ];
+  if (!data.projectName?.trim()) {
+    return "Project name is required";
+  }
 
-  for (const field of requiredFields) {
-    if (
-      data[field] === undefined ||
-      data[field] === null ||
-      String(data[field]).trim() === ""
-    ) {
-      return `${field} is required`;
-    }
+  if (!data.customer) {
+    return "Please select a customer";
   }
 
   if (!mongoose.isValidObjectId(data.customer)) {
-    return "Please select a valid customer";
+    return "Invalid customer";
   }
 
-  if (!validStatuses.includes(data.status)) {
-    return "Invalid project status";
+  if (!data.exhibitionName?.trim()) {
+    return "Exhibition name is required";
   }
 
-  const start = new Date(data.startDate);
-  const end = new Date(data.endDate);
-
-  if (
-    Number.isNaN(start.getTime()) ||
-    Number.isNaN(end.getTime())
-  ) {
-    return "Please enter valid project dates";
+  if (!data.exhibitionDate) {
+    return "Exhibition date is required";
   }
 
-  if (end < start) {
-    return "End date cannot be earlier than start date";
-  }
+  const date = new Date(data.exhibitionDate);
 
-  if (
-    !Number.isFinite(Number(data.standSize)) ||
-    Number(data.standSize) <= 0
-  ) {
-    return "Stand size must be greater than zero";
+  if (Number.isNaN(date.getTime())) {
+    return "Please enter a valid exhibition date";
   }
 
   return null;
@@ -80,7 +49,7 @@ exports.getProjects = async (req, res) => {
   }
 };
 
-// Get a single project
+// Get project by ID
 exports.getProjectById = async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
@@ -106,7 +75,7 @@ exports.getProjectById = async (req, res) => {
   }
 };
 
-// Create a project
+// Create project
 exports.createProject = async (req, res) => {
   try {
     const validationError = validateProject(req.body);
@@ -127,7 +96,12 @@ exports.createProject = async (req, res) => {
       });
     }
 
-    const project = await Project.create(req.body);
+    const project = await Project.create({
+      projectName: req.body.projectName,
+      customer: req.body.customer,
+      exhibitionName: req.body.exhibitionName,
+      exhibitionDate: req.body.exhibitionDate
+    });
 
     await project.populate("customer");
 
@@ -139,7 +113,7 @@ exports.createProject = async (req, res) => {
   }
 };
 
-// Update a project
+// Update project
 exports.updateProject = async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
@@ -168,7 +142,12 @@ exports.updateProject = async (req, res) => {
 
     const project = await Project.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      {
+        projectName: req.body.projectName,
+        customer: req.body.customer,
+        exhibitionName: req.body.exhibitionName,
+        exhibitionDate: req.body.exhibitionDate
+      },
       {
         new: true,
         runValidators: true
@@ -189,7 +168,7 @@ exports.updateProject = async (req, res) => {
   }
 };
 
-// Delete a project
+// Delete project
 exports.deleteProject = async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
@@ -198,7 +177,9 @@ exports.deleteProject = async (req, res) => {
       });
     }
 
-    const project = await Project.findByIdAndDelete(req.params.id);
+    const project = await Project.findByIdAndDelete(
+      req.params.id
+    );
 
     if (!project) {
       return res.status(404).json({

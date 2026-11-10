@@ -14,11 +14,6 @@ const quotationItemSchema = new mongoose.Schema(
       required: true
     },
 
-    unit: {
-      type: String,
-      required: true
-    },
-
     quantity: {
       type: Number,
       required: true,
@@ -37,7 +32,9 @@ const quotationItemSchema = new mongoose.Schema(
       min: 0
     }
   },
-  { _id: false }
+  {
+    _id: false
+  }
 );
 
 const quotationSchema = new mongoose.Schema(
@@ -66,20 +63,14 @@ const quotationSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0
-    },
-
-    status: {
-      type: String,
-      enum: ["Draft", "Sent", "Accepted", "Rejected"],
-      default: "Draft"
-    },
-
-    notes: {
-      type: String,
-      default: ""
     }
   },
-  { timestamps: true }
+  {
+    timestamps: true
+  }
 );
 
-module.exports = mongoose.model("Quotation", quotationSchema);
+module.exports = mongoose.model(
+  "Quotation",
+  quotationSchema
+);

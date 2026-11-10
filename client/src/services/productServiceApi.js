@@ -3,7 +3,10 @@ const API_URL = "http://localhost:5000/api/products-services";
 
 // Get all products and services
 export async function getProductsServices() {
-  const response = await fetch(API_URL);
+  const response = await fetch(API_URL,
+    {
+      credentials: "include"
+    });
 
   if (!response.ok) {
     throw new Error("Unable to load products and services");
@@ -19,7 +22,7 @@ export async function addProductService(item) {
     headers: {
       "Content-Type": "application/json"
     },
-   credentials: "include",
+    credentials: "include",
     body: JSON.stringify(item)
   });
 

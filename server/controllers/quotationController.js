@@ -5,11 +5,12 @@ const Quotation = require("../models/Quotation");
 const Project = require("../models/Project");
 const ProductService = require("../models/ProductService");
 
+// Round amounts to two decimal places
 function roundMoney(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-// Prepare quotation items using catalogue prices
+// Prepare quotation items
 async function prepareItems(items) {
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error("Please add at least one item");
@@ -18,8 +19,19 @@ async function prepareItems(items) {
   const preparedItems = [];
 
   for (const item of items) {
-    if (!mongoose.isValidObjectId(item.productService)) {
+    if (
+      !item ||
+      !mongoose.isValidObjectId(item.productService)
+    ) {
       throw new Error("Invalid product or service selected");
+    }
+
+    if (
+      item.quantity === "" ||
+      item.quantity === null ||
+      item.quantity === undefined
+    ) {
+      throw new Error("Quantity must be greater than zero");
     }
 
     const quantity = Number(item.quantity);
@@ -38,14 +50,13 @@ async function prepareItems(items) {
 
     const unitPrice = Number(product.unitPrice);
 
-    if (!Number.isFinite(unitPrice) || unitPrice < 0) {
+    if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
       throw new Error("Invalid catalogue price");
     }
 
     preparedItems.push({
       productService: product._id,
       name: product.name,
-      unit: product.unit,
       quantity,
       unitPrice,
       lineTotal: roundMoney(quantity * unitPrice)
@@ -75,7 +86,7 @@ exports.getQuotations = async (req, res) => {
   }
 };
 
-// Get a quotation by ID
+// Get quotation by ID
 exports.getQuotationById = async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
@@ -109,7 +120,7 @@ exports.getQuotationById = async (req, res) => {
 // Create quotation
 exports.createQuotation = async (req, res) => {
   try {
-    const { project, items, notes = "" } = req.body;
+    const { project, items } = req.body;
 
     if (!mongoose.isValidObjectId(project)) {
       return res.status(400).json({
@@ -136,28 +147,31 @@ exports.createQuotation = async (req, res) => {
       )
     );
 
-    // Generate a unique quotation reference
+    // Generate quotation number
     const quotationNumber =
       "QT-" +
       new Date().getFullYear() +
       "-" +
-      new mongoose.Types.ObjectId().toString().slice(-8).toUpperCase();
+      new mongoose.Types.ObjectId()
+        .toString()
+        .slice(-8)
+        .toUpperCase();
 
     const quotation = await Quotation.create({
       project,
       quotationNumber,
       items: preparedItems,
-      subtotal,
-      status: "Draft",
-      notes
+      subtotal
     });
 
     res.status(201).json(quotation);
   } catch (error) {
-    if (error.message.startsWith("Please") ||
-        error.message.startsWith("Invalid") ||
-        error.message.startsWith("Quantity") ||
-        error.message.startsWith("Selected")) {
+    if (
+      error.message.startsWith("Please") ||
+      error.message.startsWith("Invalid") ||
+      error.message.startsWith("Quantity") ||
+      error.message.startsWith("Selected")
+    ) {
       return res.status(400).json({
         message: error.message
       });
@@ -188,61 +202,48 @@ exports.updateQuotation = async (req, res) => {
       });
     }
 
-    const { project, items, status, notes } = req.body;
+    const { project, items } = req.body;
 
-    if (project !== undefined) {
-      if (!mongoose.isValidObjectId(project)) {
-        return res.status(400).json({
-          message: "Invalid project selected"
-        });
-      }
-
-      const projectExists = await Project.exists({
-        _id: project
+    if (!mongoose.isValidObjectId(project)) {
+      return res.status(400).json({
+        message: "Please select a valid project"
       });
-
-      if (!projectExists) {
-        return res.status(400).json({
-          message: "Selected project does not exist"
-        });
-      }
-
-      quotation.project = project;
     }
 
-    if (items !== undefined) {
-      quotation.items = await prepareItems(items);
+    const projectExists = await Project.exists({
+      _id: project
+    });
 
-      quotation.subtotal = roundMoney(
-        quotation.items.reduce(
-          (total, item) => total + item.lineTotal,
-          0
-        )
-      );
+    if (!projectExists) {
+      return res.status(400).json({
+        message: "Selected project does not exist"
+      });
     }
 
-    if (status !== undefined) {
-      quotation.status = status;
-    }
+    const preparedItems = await prepareItems(items);
 
-    if (notes !== undefined) {
-      quotation.notes = notes;
-    }
+    const subtotal = roundMoney(
+      preparedItems.reduce(
+        (total, item) => total + item.lineTotal,
+        0
+      )
+    );
+
+    quotation.project = project;
+    quotation.items = preparedItems;
+    quotation.subtotal = subtotal;
 
     await quotation.save();
 
     res.json(quotation);
   } catch (error) {
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        message: error.message
-      });
-    }
-
-    if (error.message.startsWith("Please") ||
-        error.message.startsWith("Invalid") ||
-        error.message.startsWith("Quantity") ||
-        error.message.startsWith("Selected")) {
+    if (
+      error.name === "ValidationError" ||
+      error.message.startsWith("Please") ||
+      error.message.startsWith("Invalid") ||
+      error.message.startsWith("Quantity") ||
+      error.message.startsWith("Selected")
+    ) {
       return res.status(400).json({
         message: error.message
       });

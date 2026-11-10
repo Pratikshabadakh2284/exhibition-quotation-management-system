@@ -8,18 +8,21 @@ export function validateCustomer(customer) {
   const phone = customer.phone.trim();
   const address = customer.address.trim();
 
+  // Contact name
   if (!name) {
     errors.name = "Contact name is required";
   } else if (name.length < 2 || name.length > 60) {
     errors.name = "Contact name must contain 2 to 60 characters";
   }
 
+  // Company name
   if (!company) {
     errors.companyName = "Company name is required";
   } else if (company.length < 2 || company.length > 100) {
     errors.companyName = "Company name must contain 2 to 100 characters";
   }
 
+  // Email
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!email) {
@@ -28,6 +31,7 @@ export function validateCustomer(customer) {
     errors.email = "Enter a valid email address";
   }
 
+  // Phone number
   const phonePattern = /^\+?[0-9()\s-]+$/;
   const digits = phone.replace(/\D/g, "");
 
@@ -38,9 +42,10 @@ export function validateCustomer(customer) {
     digits.length < 7 ||
     digits.length > 11
   ) {
-    errors.phone = "Enter a valid phone number (7 to 15 digits)";
+    errors.phone = "Enter a valid phone number (7 to 11 digits)";
   }
 
+  // Address
   if (!address) {
     errors.address = "Address is required";
   } else if (address.length < 5 || address.length > 250) {

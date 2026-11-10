@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { jsPDF } from "jspdf";
 
 import {
   getQuotations,
@@ -10,37 +11,28 @@ import {
   getQuotationProducts
 } from "../services/quotationApi";
 
-import { validateQuotation } from "../utils/quotationValidation";
 import "../styles/quotations.css";
 
 const emptyForm = {
   project: "",
-  items: [{ productService: "", quantity: 1 }],
-  status: "Draft",
-  notes: ""
+  items: [{ productService: "", quantity: 1 }]
 };
 
 const formatEuro = (amount) =>
-  new Intl.NumberFormat("en-IE", {
+  Number(amount || 0).toLocaleString("en-IE", {
     style: "currency",
     currency: "EUR"
-  }).format(amount);
+  });
 
 function Quotations() {
   const [quotations, setQuotations] = useState([]);
   const [projects, setProjects] = useState([]);
   const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({ ...emptyForm });
+  const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState(null);
-  const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
-  async function loadQuotations() {
-    const data = await getQuotations();
-    setQuotations(data);
-  }
 
   useEffect(() => {
     async function loadData() {
@@ -65,52 +57,52 @@ function Quotations() {
     loadData();
   }, []);
 
-  function handleChange(event) {
-    const { name, value } = event.target;
+  async function loadQuotations() {
+    const data = await getQuotations();
+    setQuotations(data);
+  }
 
-    setForm((previous) => ({
-      ...previous,
-      [name]: value
-    }));
+  function handleProjectChange(event) {
+    setForm({
+      ...form,
+      project: event.target.value
+    });
   }
 
   function handleItemChange(index, field, value) {
-    setForm((previous) => ({
-      ...previous,
-      items: previous.items.map((item, itemIndex) =>
-        itemIndex === index
-          ? { ...item, [field]: value }
-          : item
-      )
-    }));
+    const updatedItems = [...form.items];
+
+    updatedItems[index] = {
+      ...updatedItems[index],
+      [field]: value
+    };
+
+    setForm({
+      ...form,
+      items: updatedItems
+    });
   }
 
   function addItemRow() {
-    setForm((previous) => ({
-      ...previous,
+    setForm({
+      ...form,
       items: [
-        ...previous.items,
+        ...form.items,
         { productService: "", quantity: 1 }
       ]
-    }));
+    });
   }
 
   function removeItemRow(index) {
-    setForm((previous) => ({
-      ...previous,
-      items: previous.items.filter((_, i) => i !== index)
-    }));
-  }
+    if (form.items.length === 1) {
+      setMessage("At least one item is required");
+      return;
+    }
 
-  function resetForm() {
     setForm({
-      project: "",
-      items: [{ productService: "", quantity: 1 }],
-      status: "Draft",
-      notes: ""
+      ...form,
+      items: form.items.filter((_, i) => i !== index)
     });
-    setEditId(null);
-    setErrors({});
   }
 
   function calculateLineTotal(item) {
@@ -124,34 +116,54 @@ function Quotations() {
       Number(item.quantity || 0);
   }
 
-  const subtotal = form.items.reduce(
+  const totalAmount = form.items.reduce(
     (total, item) => total + calculateLineTotal(item),
     0
   );
 
+  function resetForm() {
+    setForm({
+      project: "",
+      items: [{ productService: "", quantity: 1 }]
+    });
+
+    setEditId(null);
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
-    setMessage("");
 
-    const validationErrors = validateQuotation(form);
-    setErrors(validationErrors);
+    if (!form.project) {
+      setMessage("Please select an exhibition project");
+      return;
+    }
 
-    if (Object.keys(validationErrors).length > 0) return;
+    if (
+      form.items.some(
+        (item) =>
+          !item.productService ||
+          item.quantity === "" ||
+          !Number.isFinite(Number(item.quantity)) ||
+          Number(item.quantity) <= 0
+      )
+    ) {
+      setMessage("Please select valid items and quantities");
+      return;
+    }
 
     setSaving(true);
+    setMessage("");
+
+    const payload = {
+      project: form.project,
+      items: form.items.map((item) => ({
+        productService: item.productService,
+        quantity: Number(item.quantity)
+      }))
+    };
 
     try {
-      const payload = {
-        project: form.project,
-        items: form.items.map((item) => ({
-          productService: item.productService,
-          quantity: Number(item.quantity)
-        })),
-        notes: form.notes
-      };
-
       if (editId) {
-        payload.status = form.status;
         await updateQuotation(editId, payload);
         setMessage("Quotation updated successfully");
       } else {
@@ -173,48 +185,189 @@ function Quotations() {
 
     setForm({
       project:
-        typeof quotation.project === "object"
-          ? quotation.project?._id || ""
-          : quotation.project || "",
+        quotation.project?._id ||
+        quotation.project ||
+        "",
       items: quotation.items.map((item) => ({
-        productService: item.productService,
+        productService:
+          item.productService?._id ||
+          item.productService ||
+          "",
         quantity: item.quantity
-      })),
-      status: quotation.status,
-      notes: quotation.notes || ""
+      }))
     });
 
-    setErrors({});
     setMessage("");
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo(0, 0);
   }
 
   async function handleDelete(quotation) {
-    if (!window.confirm(
-      `Delete quotation ${quotation.quotationNumber}?`
-    )) {
+    if (
+      !window.confirm(
+        `Delete quotation ${quotation.quotationNumber}?`
+      )
+    ) {
       return;
     }
 
     try {
       await deleteQuotation(quotation._id);
-      setMessage("Quotation deleted successfully");
-
-      if (editId === quotation._id) resetForm();
-
       await loadQuotations();
+
+      if (editId === quotation._id) {
+        resetForm();
+      }
+
+      setMessage("Quotation deleted successfully");
     } catch (error) {
       setMessage(error.message);
     }
+  }
+
+  // Download quotation as PDF
+  function downloadQuotationPDF(quotation) {
+    const pdf = new jsPDF();
+
+    const formatAmount = (amount) =>
+      Number(amount || 0).toFixed(2);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(22);
+    pdf.text("ExpoCraft", 20, 20);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(11);
+    pdf.text(
+      "Exhibition Quotation Management System",
+      20,
+      28
+    );
+
+    pdf.line(20, 34, 190, 34);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(16);
+    pdf.text("QUOTATION", 20, 46);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(11);
+
+    pdf.text(
+      `Quotation No: ${quotation.quotationNumber}`,
+      20,
+      57
+    );
+
+    const quotationDate = quotation.createdAt
+      ? new Date(quotation.createdAt).toLocaleDateString("en-IE")
+      : new Date().toLocaleDateString("en-IE");
+
+    pdf.text(`Date: ${quotationDate}`, 20, 65);
+
+    const projectName =
+      quotation.project?.projectName || "N/A";
+
+    const customerName =
+      quotation.project?.customer?.companyName ||
+      quotation.project?.customer?.name ||
+      "N/A";
+
+    pdf.text(
+      pdf.splitTextToSize(`Project: ${projectName}`, 170),
+      20,
+      74
+    );
+
+    pdf.text(
+      pdf.splitTextToSize(`Customer: ${customerName}`, 170),
+      20,
+      86
+    );
+
+    let y = 108;
+
+    function drawTableHeader() {
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(10);
+
+      pdf.text("Item", 20, y);
+      pdf.text("Qty", 105, y);
+      pdf.text("Price (EUR)", 126, y);
+      pdf.text("Total (EUR)", 160, y);
+
+      pdf.line(20, y + 3, 190, y + 3);
+
+      y += 12;
+
+      pdf.setFont("helvetica", "normal");
+    }
+
+    drawTableHeader();
+
+    quotation.items.forEach((item) => {
+      const itemName = pdf.splitTextToSize(
+        String(item.name || "Item"),
+        78
+      );
+
+      const rowHeight = Math.max(
+        10,
+        itemName.length * 5 + 5
+      );
+
+      if (y + rowHeight > 270) {
+        pdf.addPage();
+        y = 25;
+        drawTableHeader();
+      }
+
+      pdf.text(itemName, 20, y);
+      pdf.text(String(item.quantity), 105, y);
+
+      pdf.text(
+        formatAmount(item.unitPrice),
+        126,
+        y
+      );
+
+      pdf.text(
+        formatAmount(item.lineTotal),
+        160,
+        y
+      );
+
+      y += rowHeight;
+    });
+
+    if (y > 260) {
+      pdf.addPage();
+      y = 25;
+    }
+
+    pdf.line(20, y, 190, y);
+    y += 12;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+
+    pdf.text("Total Amount (EUR):", 105, y);
+
+    pdf.text(
+      formatAmount(quotation.subtotal),
+      160,
+      y
+    );
+
+    pdf.save(
+      `${quotation.quotationNumber || "quotation"}.pdf`
+    );
   }
 
   return (
     <main className="quotations-page">
       <h1>Quotation Management</h1>
       <p>
-        Prepare exhibition quotations using saved
-        products and services.
+        Create and download quotations for exhibition projects.
       </p>
 
       <section className="quotation-card">
@@ -222,107 +375,95 @@ function Quotations() {
           {editId ? "Edit Quotation" : "Create Quotation"}
         </h2>
 
-        <form onSubmit={handleSubmit} noValidate>
-          <label htmlFor="project">Exhibition Project *</label>
+        <form onSubmit={handleSubmit}>
+          <label>Exhibition Project *</label>
+
           <select
-            id="project"
-            name="project"
             value={form.project}
-            onChange={handleChange}
+            onChange={handleProjectChange}
+            required
           >
             <option value="">Select Project</option>
+
             {projects.map((project) => (
-              <option key={project._id} value={project._id}>
+              <option
+                key={project._id}
+                value={project._id}
+              >
                 {project.projectName}
               </option>
             ))}
           </select>
-          {errors.project && (
-            <small className="quotation-error">
-              {errors.project}
-            </small>
-          )}
 
           <h3>Quotation Items</h3>
 
-          {form.items.map((item, index) => {
-            const product = products.find(
-              (p) => p._id === item.productService
-            );
+          {form.items.map((item, index) => (
+            <div
+              className="quotation-item-row"
+              key={index}
+            >
+              <div>
+                <label>Product / Service *</label>
 
-            return (
-              <div className="quotation-item-row" key={index}>
-                <div>
-                  <label>Product / Service *</label>
-                  <select
-                    value={item.productService}
-                    onChange={(event) =>
-                      handleItemChange(
-                        index,
-                        "productService",
-                        event.target.value
-                      )
-                    }
-                  >
-                    <option value="">Select Item</option>
-                    {products.map((p) => (
-                      <option key={p._id} value={p._id}>
-                        {p.name} — {formatEuro(p.unitPrice)}
-                        / {p.unit}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label>Quantity *</label>
-                  <input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    value={item.quantity}
-                    onChange={(event) =>
-                      handleItemChange(
-                        index,
-                        "quantity",
-                        event.target.value
-                      )
-                    }
-                  />
-                </div>
-
-                <div className="quotation-line-total">
-                  <label>Line Total</label>
-                  <strong>
-                    {formatEuro(calculateLineTotal(item))}
-                  </strong>
-                  {product && (
-                    <small>{product.unit}</small>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  className="quotation-remove-btn"
-                  onClick={() => removeItemRow(index)}
+                <select
+                  value={item.productService}
+                  onChange={(event) =>
+                    handleItemChange(
+                      index,
+                      "productService",
+                      event.target.value
+                    )
+                  }
+                  required
                 >
-                  Remove
-                </button>
+                  <option value="">Select Item</option>
 
-                {errors[`item_${index}`] && (
-                  <small className="quotation-error">
-                    {errors[`item_${index}`]}
-                  </small>
-                )}
+                  {products.map((product) => (
+                    <option
+                      key={product._id}
+                      value={product._id}
+                    >
+                      {product.name} - {formatEuro(product.unitPrice)}
+                    </option>
+                  ))}
+                </select>
               </div>
-            );
-          })}
 
-          {errors.items && (
-            <small className="quotation-error">
-              {errors.items}
-            </small>
-          )}
+              <div>
+                <label>Quantity *</label>
+
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={item.quantity}
+                  onChange={(event) =>
+                    handleItemChange(
+                      index,
+                      "quantity",
+                      event.target.value
+                    )
+                  }
+                  required
+                />
+              </div>
+
+              <div className="quotation-line-total">
+                <label>Line Total</label>
+                <strong>
+                  {formatEuro(calculateLineTotal(item))}
+                </strong>
+              </div>
+
+              <button
+                type="button"
+                className="quotation-remove-btn"
+                onClick={() => removeItemRow(index)}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
 
           <button
             type="button"
@@ -333,36 +474,9 @@ function Quotations() {
           </button>
 
           <div className="quotation-subtotal">
-            <span>Subtotal</span>
-            <strong>{formatEuro(subtotal)}</strong>
+            <span>Total Amount</span>
+            <strong>{formatEuro(totalAmount)}</strong>
           </div>
-
-          {editId && (
-            <>
-              <label htmlFor="status">Quotation Status</label>
-              <select
-                id="status"
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-              >
-                <option value="Draft">Draft</option>
-                <option value="Sent">Sent</option>
-                <option value="Accepted">Accepted</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-            </>
-          )}
-
-          <label htmlFor="notes">Notes</label>
-          <textarea
-            id="notes"
-            name="notes"
-            rows="3"
-            value={form.notes}
-            onChange={handleChange}
-            placeholder="Additional quotation information"
-          />
 
           <div className="quotation-form-buttons">
             <button type="submit" disabled={saving}>
@@ -403,8 +517,7 @@ function Quotations() {
                 <th>Project</th>
                 <th>Customer</th>
                 <th>Items</th>
-                <th>Subtotal</th>
-                <th>Status</th>
+                <th>Total Amount</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -412,28 +525,38 @@ function Quotations() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="7">Loading quotations...</td>
+                  <td colSpan="6">
+                    Loading quotations...
+                  </td>
                 </tr>
               ) : quotations.length === 0 ? (
                 <tr>
-                  <td colSpan="7">No quotations found.</td>
+                  <td colSpan="6">
+                    No quotations found.
+                  </td>
                 </tr>
               ) : (
                 quotations.map((quotation) => (
                   <tr key={quotation._id}>
                     <td>{quotation.quotationNumber}</td>
+
                     <td>
                       {quotation.project?.projectName ||
                         "Unknown"}
                     </td>
+
                     <td>
                       {quotation.project?.customer?.companyName ||
                         quotation.project?.customer?.name ||
                         "Unknown"}
                     </td>
+
                     <td>{quotation.items.length}</td>
-                    <td>{formatEuro(quotation.subtotal)}</td>
-                    <td>{quotation.status}</td>
+
+                    <td>
+                      {formatEuro(quotation.subtotal)}
+                    </td>
+
                     <td>
                       <div className="quotation-table-actions">
                         <button
@@ -443,12 +566,23 @@ function Quotations() {
                         >
                           Edit
                         </button>
+
                         <button
                           type="button"
                           className="quotation-delete-btn"
                           onClick={() => handleDelete(quotation)}
                         >
                           Delete
+                        </button>
+
+                        <button
+                          type="button"
+                          className="quotation-download-btn"
+                          onClick={() =>
+                            downloadQuotationPDF(quotation)
+                          }
+                        >
+                          Download PDF
                         </button>
                       </div>
                     </td>

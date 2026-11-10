@@ -240,3 +240,15 @@
     flex-wrap: wrap;
   }
 }
+.quotation-download-btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.quotation-download-btn:hover {
+  background-color: #1d4ed8;
+}

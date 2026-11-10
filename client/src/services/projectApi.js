@@ -27,6 +27,7 @@ export async function addProject(project) {
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(project)
   });
 
@@ -39,6 +40,7 @@ export async function updateProject(id, project) {
     headers: {
       "Content-Type": "application/json"
     },
+   credentials: "include",
     body: JSON.stringify(project)
   });
 
@@ -47,7 +49,8 @@ export async function updateProject(id, project) {
 
 export async function deleteProject(id) {
   const response = await fetch(`${API_URL}/${id}`, {
-    method: "DELETE"
+    method: "DELETE",
+    credentials: "include",
   });
 
   return handleResponse(response);

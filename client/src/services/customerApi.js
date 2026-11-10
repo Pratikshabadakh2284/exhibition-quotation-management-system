@@ -2,7 +2,10 @@
 const API_URL = "http://localhost:5000/api/customers";
 
 export async function getCustomers() {
-  const response = await fetch(API_URL);
+  const response = await fetch(API_URL,
+    {
+      credentials: "include"
+    });
 
   if (!response.ok) {
     throw new Error("Unable to load customers");
@@ -17,6 +20,7 @@ export async function addCustomer(customer) {
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(customer)
   });
 
@@ -35,6 +39,7 @@ export async function updateCustomer(id, customer) {
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(customer)
   });
 
@@ -49,7 +54,8 @@ export async function updateCustomer(id, customer) {
 
 export async function deleteCustomer(id) {
   const response = await fetch(`${API_URL}/${id}`, {
-    method: "DELETE"
+    method: "DELETE",
+    credentials: "include"
   });
 
   const data = await response.json();

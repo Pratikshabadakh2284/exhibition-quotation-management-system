@@ -19,6 +19,7 @@ export async function addProductService(item) {
     headers: {
       "Content-Type": "application/json"
     },
+   credentials: "include",
     body: JSON.stringify(item)
   });
 
@@ -38,6 +39,7 @@ export async function updateProductService(id, item) {
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(item)
   });
 
@@ -53,7 +55,9 @@ export async function updateProductService(id, item) {
 // Delete a product or service
 export async function deleteProductService(id) {
   const response = await fetch(`${API_URL}/${id}`, {
-    method: "DELETE"
+    method: "DELETE",
+    credentials: "include",
+
   });
 
   const data = await response.json();

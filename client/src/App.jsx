@@ -38,15 +38,26 @@ function App() {
   }, []);
 
   // Logout
-  async function handleLogout() {
-    try {
-      await logout();
-      setUser(null);
-      setActivePage("customers");
-    } catch (error) {
-      alert(error.message);
-    }
+ 
+async function handleLogout() {
+  const confirmLogout = window.confirm(
+    "Are you sure you want to log out of ExpoCraft?"
+  );
+
+  if (!confirmLogout) {
+    return;
   }
+
+  try {
+    await logout();
+
+    setUser(null);
+    setActivePage("customers");
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
 
   // After changing password, return to login
   function handlePasswordChanged() {

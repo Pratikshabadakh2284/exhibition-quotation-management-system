@@ -36,7 +36,7 @@ export function validateCustomer(customer) {
   } else if (
     !phonePattern.test(phone) ||
     digits.length < 7 ||
-    digits.length > 15
+    digits.length > 11
   ) {
     errors.phone = "Enter a valid phone number (7 to 15 digits)";
   }

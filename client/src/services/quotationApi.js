@@ -22,6 +22,7 @@ export async function addQuotation(quotation) {
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(quotation)
   });
 
@@ -34,6 +35,7 @@ export async function updateQuotation(id, quotation) {
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(quotation)
   });
 
@@ -42,7 +44,8 @@ export async function updateQuotation(id, quotation) {
 
 export async function deleteQuotation(id) {
   const response = await fetch(`${BASE_URL}/quotations/${id}`, {
-    method: "DELETE"
+    method: "DELETE",
+    credentials: "include",
   });
 
   return handleResponse(response);

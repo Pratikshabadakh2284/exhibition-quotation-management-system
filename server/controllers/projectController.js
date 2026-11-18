@@ -2,6 +2,7 @@
 const mongoose = require("mongoose");
 const Project = require("../models/Project");
 const Customer = require("../models/Customer");
+const Quotation = require("../models/Quotation");
 
 // Validate project details
 function validateProject(data) {
@@ -169,17 +170,18 @@ exports.updateProject = async (req, res) => {
 };
 
 // Delete project
+
 exports.deleteProject = async (req, res) => {
   try {
-    if (!mongoose.isValidObjectId(req.params.id)) {
+    // Check if project ID is valid
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({
         message: "Invalid project ID"
       });
     }
 
-    const project = await Project.findByIdAndDelete(
-      req.params.id
-    );
+    // Check if project exists
+    const project = await Project.findById(req.params.id);
 
     if (!project) {
       return res.status(404).json({
@@ -187,12 +189,30 @@ exports.deleteProject = async (req, res) => {
       });
     }
 
-    res.json({
+    // Check if project has any quotations
+    const linkedQuotation = await Quotation.findOne({
+      project: project._id
+    });
+
+    if (linkedQuotation) {
+      return res.status(409).json({
+        message: "Cannot delete this project because it has an existing quotation. Delete the quotation first."
+      });
+    }
+
+    // Delete only if no quotation exists
+    await Project.findByIdAndDelete(project._id);
+
+    return res.status(200).json({
       message: "Project deleted successfully"
     });
+
   } catch (error) {
-    res.status(500).json({
-      message: "Unable to delete project"
+    console.error("Delete project error:", error);
+
+    return res.status(500).json({
+      message: "Failed to delete project"
     });
   }
 };
+

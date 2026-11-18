@@ -1,7 +1,7 @@
 
 const mongoose = require("mongoose");
 const ProductService = require("../models/ProductService");
-
+const Quotation = require("../models/Quotation");
 // Validate product or service
 function validateItem(data) {
   if (!data || typeof data !== "object" || Array.isArray(data)) {
@@ -149,17 +149,18 @@ exports.updateItem = async (req, res) => {
 };
 
 // Delete product or service
+
 exports.deleteItem = async (req, res) => {
   try {
+    // Check if item ID is valid
     if (!mongoose.isValidObjectId(req.params.id)) {
       return res.status(400).json({
         message: "Invalid item ID"
       });
     }
 
-    const item = await ProductService.findByIdAndDelete(
-      req.params.id
-    );
+    // Check if product or service exists
+    const item = await ProductService.findById(req.params.id);
 
     if (!item) {
       return res.status(404).json({
@@ -167,10 +168,28 @@ exports.deleteItem = async (req, res) => {
       });
     }
 
-    res.json({
+    // Check if item is used in any quotation
+    const linkedQuotation = await Quotation.findOne({
+      "items.productService": item._id
+    });
+
+    // Prevent deletion if used in quotation
+    if (linkedQuotation) {
+      return res.status(409).json({
+        message:
+          "Cannot delete this product or service because it is used in an existing quotation."
+      });
+    }
+
+    // Delete only if item is not used in quotations
+    await ProductService.findByIdAndDelete(item._id);
+
+    return res.status(200).json({
       message: "Item deleted successfully"
     });
+
   } catch (error) {
     sendError(res, error);
   }
 };
+

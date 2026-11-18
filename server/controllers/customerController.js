@@ -1,6 +1,6 @@
 
 const Customer = require("../models/Customer");
-
+const Project = require("../models/Project");
 // Check if the customer ID is valid
 function isValidId(id) {
   return /^[0-9a-fA-F]{24}$/.test(id);
@@ -159,21 +159,50 @@ exports.updateCustomer = async (req, res) => {
   }
 };
 
-// DELETE customer
+ // DELETE customer
+
 exports.deleteCustomer = async (req, res) => {
   try {
+    // Check whether the customer ID is valid
     if (!isValidId(req.params.id)) {
-      return res.status(400).json({ message: "Invalid customer ID" });
+      return res.status(400).json({
+        message: "Invalid customer ID"
+      });
     }
 
-    const customer = await Customer.findByIdAndDelete(req.params.id);
+    // Check whether the customer exists
+    const customer = await Customer.findById(req.params.id);
 
     if (!customer) {
-      return res.status(404).json({ message: "Customer not found" });
+      return res.status(404).json({
+        message: "Customer not found"
+      });
     }
 
-    res.json({ message: "Customer deleted successfully" });
+    // Check whether this customer has any projects
+    const linkedProject = await Project.findOne({
+      customer: customer._id
+    });
+
+    console.log("Customer ID:", customer._id.toString());
+    console.log("Linked project:", linkedProject);
+
+    // Do not delete customers with existing projects
+    if (linkedProject) {
+      return res.status(409).json({
+        message: "Cannot delete this customer because they have an existing project."
+      });
+    }
+
+    // Delete customer only when no projects exist
+    await Customer.findByIdAndDelete(customer._id);
+
+    return res.status(200).json({
+      message: "Customer deleted successfully"
+    });
+
   } catch (error) {
     sendError(res, error);
   }
 };
+

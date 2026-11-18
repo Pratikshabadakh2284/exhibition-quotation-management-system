@@ -27,9 +27,9 @@ function validateItem(data) {
     unitPrice === null ||
     unitPrice === undefined ||
     !Number.isFinite(Number(unitPrice)) ||
-    Number(unitPrice) < 0.01
+    Number(unitPrice) < 1 
   ) {
-    return { error: "Enter a valid price greater than zero" };
+    return { error: "Enter a valid price greater than 1 " };
   }
 
   return {

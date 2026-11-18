@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 // Login for admin and staff
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
 
     if (typeof email !== "string" ||
         typeof password !== "string" ||
@@ -96,7 +96,7 @@ const logout = async (req, res) => {
 // Admin creates staff account
 const createStaff = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } = req.body || {};
 
     if (typeof name !== "string" ||
         typeof email !== "string" ||
@@ -174,7 +174,7 @@ const getStaff = async (req, res) => {
 // Logged-in user changes password
 const changePassword = async (req, res) => {
   try {
-    const { currentPassword, newPassword } = req.body;
+    const { currentPassword, newPassword } = req.body || {};
 
     if (typeof currentPassword !== "string" ||
         typeof newPassword !== "string" ||

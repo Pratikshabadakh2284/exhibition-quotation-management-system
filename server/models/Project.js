@@ -6,7 +6,9 @@ const projectSchema = new mongoose.Schema(
     projectName: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
+      minlength: 2,
+      maxlength: 100
     },
 
     customer: {
@@ -18,7 +20,9 @@ const projectSchema = new mongoose.Schema(
     exhibitionName: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
+      minlength: 2,
+      maxlength: 100
     },
 
     exhibitionDate: {

@@ -106,8 +106,7 @@ exports.getCustomerById = async (req, res) => {
 // POST new customer
 exports.createCustomer = async (req, res) => {
   try {
-    const result = validateCustomer(req.body);
-
+    const result = validateCustomer(req.body || {});
     if (result.error) {
       return res.status(400).json({ message: result.error });
     }
@@ -137,7 +136,7 @@ exports.updateCustomer = async (req, res) => {
       return res.status(400).json({ message: "Invalid customer ID" });
     }
 
-    const result = validateCustomer(req.body);
+    const result = validateCustomer(req.body || {});
 
     if (result.error) {
       return res.status(400).json({ message: result.error });
@@ -184,8 +183,6 @@ exports.deleteCustomer = async (req, res) => {
       customer: customer._id
     });
 
-    console.log("Customer ID:", customer._id.toString());
-    console.log("Linked project:", linkedProject);
 
     // Do not delete customers with existing projects
     if (linkedProject) {

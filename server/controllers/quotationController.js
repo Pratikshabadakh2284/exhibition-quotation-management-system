@@ -120,7 +120,7 @@ exports.getQuotationById = async (req, res) => {
 // Create quotation
 exports.createQuotation = async (req, res) => {
   try {
-    const { project, items } = req.body;
+    const { project, items } = req.body || {};
 
     if (!mongoose.isValidObjectId(project)) {
       return res.status(400).json({
@@ -202,7 +202,7 @@ exports.updateQuotation = async (req, res) => {
       });
     }
 
-    const { project, items } = req.body;
+    const { project, items } = req.body || {};
 
     if (!mongoose.isValidObjectId(project)) {
       return res.status(400).json({

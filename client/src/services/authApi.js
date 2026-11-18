@@ -1,5 +1,5 @@
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "https://expocraft-backend-ascb.onrender.com/api/auth";
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {

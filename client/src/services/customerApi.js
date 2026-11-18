@@ -1,5 +1,5 @@
 
-const API_URL = "http://localhost:5000/api/customers";
+const API_URL = "https://expocraft-backend-ascb.onrender.com/api/customers";
 
 export async function getCustomers() {
   const response = await fetch(API_URL,

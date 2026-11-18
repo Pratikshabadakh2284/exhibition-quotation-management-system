@@ -1,6 +1,6 @@
 
-const API_URL = "http://localhost:5000/api/projects";
-const CUSTOMER_URL = "http://localhost:5000/api/customers";
+const API_URL = "https://expocraft-backend-ascb.onrender.com/api/projects";
+const CUSTOMER_URL = "https://expocraft-backend-ascb.onrender.com/api/customers";
 
 // Get all projects
 export async function getProjects() {

@@ -1,5 +1,5 @@
 
-const API_URL = "http://localhost:5000/api/products-services";
+const API_URL = "https://expocraft-backend-ascb.onrender.com/api/products-services";
 
 // Get all products and services
 export async function getProductsServices() {

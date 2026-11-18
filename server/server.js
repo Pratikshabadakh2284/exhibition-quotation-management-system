@@ -61,7 +61,14 @@ async function startServer() {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("MongoDB connection failed:", error);
+    console.error("MongoDB connection failed:", error.message);
+
+    if (error.reason && error.reason.servers) {
+      for (const [server, details] of error.reason.servers) {
+        console.error("MongoDB server:", server);
+        console.error("Connection error:", details.error?.message);
+      }
+    }
     process.exit(1);
   }
 

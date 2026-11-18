@@ -2,7 +2,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const isProduction = process.env.NODE_ENV === "production";
 // Login for admin and staff
 const login = async (req, res) => {
   try {
@@ -45,8 +45,8 @@ const login = async (req, res) => {
 
     res.cookie("expocraft_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000,
       path: "/"
     });
@@ -83,8 +83,8 @@ const getCurrentUser = async (req, res) => {
 const logout = async (req, res) => {
   res.clearCookie("expocraft_token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     path: "/"
   });
 
@@ -210,8 +210,8 @@ const changePassword = async (req, res) => {
 
     res.clearCookie("expocraft_token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       path: "/"
     });
 

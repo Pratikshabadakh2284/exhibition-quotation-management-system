@@ -61,12 +61,10 @@ async function startServer() {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error(
-      "MongoDB connection failed:",
-      error.message
-    );
+    console.error("MongoDB connection failed:", error);
     process.exit(1);
   }
+
 }
 
 startServer();

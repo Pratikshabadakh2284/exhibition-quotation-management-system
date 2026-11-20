@@ -134,7 +134,7 @@ function Projects() {
 
   return (
     <main className="projects-page">
-      <h1>Exhibition Projects</h1>
+      <h1>Project Workspace</h1>
 
       <p>
         Create and manage exhibition projects.

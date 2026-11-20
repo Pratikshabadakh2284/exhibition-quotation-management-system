@@ -135,7 +135,7 @@ function ProductsServices() {
 
   return (
     <main className="products-page">
-      <h1>Products &amp; Services</h1>
+      <h1>Service Catalogue</h1>
 
       <p>
         Manage items used in exhibition quotations.

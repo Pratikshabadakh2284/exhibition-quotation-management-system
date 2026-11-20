@@ -178,11 +178,11 @@ function Customers() {
 
   return (
     <main className="customers-page">
-      <h1>Customer Management</h1>
-      <p>Manage customer details for exhibition projects and quotations.</p>
+      <h1>Client Hub</h1>
+      <p>Manage client details for exhibition projects and quotations.</p>
 
       <section className="customer-card">
-        <h2>{editId ? "Edit Customer" : "Add New Customer"}</h2>
+        <h2>{editId ? "Edit Client" : "Add New Client"}</h2>
         <p className="required-note">* All fields are mandatory</p>
 
         <form onSubmit={handleSubmit} noValidate>
@@ -297,7 +297,7 @@ function Customers() {
 
       <section className="customer-card">
         <div className="list-header">
-          <h2>Customer List ({customers.length})</h2>
+          <h2>Client List ({customers.length})</h2>
 
           <input
             type="search"

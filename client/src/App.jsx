@@ -105,28 +105,28 @@ async function handleLogout() {
             type="button"
             onClick={() => setActivePage("customers")}
           >
-            Customers
+            Client Hub
           </button>
 
           <button
             type="button"
             onClick={() => setActivePage("products")}
           >
-            Products &amp; Services
+            Service Catalogue
           </button>
 
           <button
             type="button"
             onClick={() => setActivePage("projects")}
           >
-            Exhibition Projects
+           Project Workspace
           </button>
 
           <button
             type="button"
             onClick={() => setActivePage("quotations")}
           >
-            Quotations
+            Quote Studio
           </button>
 
           {/* Only admin can see Manage Users */}
@@ -135,7 +135,7 @@ async function handleLogout() {
               type="button"
               onClick={() => setActivePage("users")}
             >
-              Manage Users
+              Team Management
             </button>
           )}
 
